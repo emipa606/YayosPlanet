@@ -9,7 +9,6 @@ public static class HarmonyPatches
 {
     static HarmonyPatches()
     {
-        var harmony = new Harmony("yayoPlanet");
-        harmony.PatchAll(Assembly.GetExecutingAssembly());
+        new Harmony("yayoPlanet").PatchAll(Assembly.GetExecutingAssembly());
     }
 }

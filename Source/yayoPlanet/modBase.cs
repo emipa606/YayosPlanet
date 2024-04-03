@@ -93,7 +93,7 @@ public class modBase : ModBase
 
     public override void SettingsChanged()
     {
-        ar_gc = new List<GameConditionDef>();
+        ar_gc = [];
 
         eventStart = eventStart_s.Value;
         eventCycle = Mathf.Clamp(eventCycle_s.Value, 1, 10);

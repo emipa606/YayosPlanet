@@ -60,16 +60,16 @@ public class yyTornado : ThingWithComps
     private static readonly Material TornadoMaterial = MaterialPool.MatFrom("Things/Ethereal/Tornado",
         ShaderDatabase.Transparent, MapMaterialRenderQueues.Tornado);
 
-    private static readonly FloatRange PartsDistanceFromCenter = new FloatRange(1f, 10f);
+    private static readonly FloatRange PartsDistanceFromCenter = new FloatRange(1f, FarDamageRadius);
 
     private static readonly float ZOffsetBias = -4f * PartsDistanceFromCenter.min;
 
-    private static readonly List<Thing> tmpThings = new List<Thing>();
+    private static readonly List<Thing> tmpThings = [];
 
     private readonly int max_destroyHp = 1000;
     private readonly int maxHp = 30;
 
-    private readonly List<IntVec3> removedRoofsTmp = new List<IntVec3>();
+    private readonly List<IntVec3> removedRoofsTmp = [];
     private int _hp = 999;
     private int destroyHp = 99999;
 
@@ -162,7 +162,7 @@ public class yyTornado : ThingWithComps
 
         sustainer?.Maintain();
         UpdateSustainerVolume();
-        GetComp<CompWindSource>().wind = 5f * FadeInOutFactor;
+        GetComp<CompWindSource>().wind = Wind * FadeInOutFactor;
         if (leftFadeOutTicks > 0)
         {
             leftFadeOutTicks--;
@@ -189,7 +189,7 @@ public class yyTornado : ThingWithComps
                 // 현재 셀이 이동불가 셀일경우 방향전환
                 if (intVec.Impassable(Map))
                 {
-                    changeDirection(15);
+                    changeDirection(CloseDamageIntervalTicks);
                 }
                 /*
                     else if(intVec.InNoBuildEdgeArea(base.Map))// 인접한 셀이 이동불가 셀일경우 방향전환
@@ -204,13 +204,13 @@ public class yyTornado : ThingWithComps
                     DamageCloseThings();
                 }
 
-                if (Rand.MTBEventOccurs(15f, 1f, 0.25f))
+                if (Rand.MTBEventOccurs(FarDamageMTBTicks, 1f, 0.25f))
                 {
                     DamageFarThings();
                 }
 
                 /*
-                    if (this.IsHashIntervalTick(20))
+                    if (this.IsHashIntervalTick(RoofDestructionIntervalTicks))
                     {
                         this.DestroyRoofs();
                     }
@@ -225,7 +225,7 @@ public class yyTornado : ThingWithComps
                     }
                 }
 
-                if (this.IsHashIntervalTick(4) && !CellImmuneToDamage(Position))
+                if (this.IsHashIntervalTick(SpawnMoteEveryTicks) && !CellImmuneToDamage(Position))
                 {
                     /*
                         float num = Rand.Range(0.6f, 1f);
@@ -245,8 +245,9 @@ public class yyTornado : ThingWithComps
         }
     }
 
-    public override void Draw()
+    protected override void DrawAt(Vector3 drawLoc, bool flip = false)
     {
+        base.DrawAt(drawLoc, flip);
         Rand.PushState();
         Rand.Seed = thingIDNumber;
 
@@ -351,7 +352,7 @@ public class yyTornado : ThingWithComps
 
     private void DamageFarThings()
     {
-        var c = (from x in GenRadial.RadialCellsAround(Position, 10f, true)
+        var c = (from x in GenRadial.RadialCellsAround(Position, FarDamageRadius, true)
             where x.InBounds(Map)
             select x).RandomElement();
         if (CellImmuneToDamage(c))
@@ -365,7 +366,7 @@ public class yyTornado : ThingWithComps
     private void DestroyRoofs()
     {
         removedRoofsTmp.Clear();
-        foreach (var intVec in from x in GenRadial.RadialCellsAround(Position, 4.2f, true)
+        foreach (var intVec in from x in GenRadial.RadialCellsAround(Position, CloseDamageRadius, true)
                  where x.InBounds(Map)
                  select x)
         {
@@ -462,7 +463,7 @@ public class yyTornado : ThingWithComps
                     break;
             }
 
-            var num = Mathf.Max(GenMath.RoundRandom(30f * damageFactor), 0);
+            var num = Mathf.Max(GenMath.RoundRandom(BaseDamage * damageFactor), 0);
             if (thing.def.category == ThingCategory.Building)
             {
                 num = GenMath.RoundRandom(Mathf.Max(num,

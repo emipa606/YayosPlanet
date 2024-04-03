@@ -4,7 +4,7 @@ using Verse;
 
 namespace yayoPlanet;
 
-[HarmonyPatch(typeof(StorytellerUtility), "DefaultThreatPointsNow")]
+[HarmonyPatch(typeof(StorytellerUtility), nameof(StorytellerUtility.DefaultThreatPointsNow))]
 internal class StorytellerUtility_DefaultThreatPointsNow_patch
 {
     [HarmonyPostfix]

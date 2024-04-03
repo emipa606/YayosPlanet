@@ -3,13 +3,9 @@ using Verse;
 
 namespace yayoPlanet;
 
-public class Core : MapComponent
+public class Core(Map map) : MapComponent(map)
 {
     private readonly int notice_tick = GenDate.TicksPerQuadrum;
-
-    public Core(Map map) : base(map)
-    {
-    }
 
     public override void MapComponentTick()
     {
