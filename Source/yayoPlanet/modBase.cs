@@ -12,11 +12,11 @@ public class modBase : ModBase
     public static int eventStart = 1;
     public static int eventCycle = 2;
     public static bool bl_randomType;
-    public static bool bl_yyCold = true;
+    private static bool bl_yyCold = true;
     public static float val_yyCold;
-    public static bool bl_yyHot = true;
+    private static bool bl_yyHot = true;
     public static float val_yyHot;
-    public static bool bl_yyTornado = true;
+    private static bool bl_yyTornado = true;
     public static float val_yyTornado = 1f;
     public static float val_threrat = 0.5f;
 

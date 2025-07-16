@@ -53,21 +53,21 @@ public class yyTornado : ThingWithComps
 
     private const float MaxMidOffset = 2f;
 
-    private static readonly MaterialPropertyBlock matPropertyBlock = new MaterialPropertyBlock();
+    private const int MaxDestroyHp = 1000;
+    private const int MaxHp = 30;
+
+    private static readonly MaterialPropertyBlock matPropertyBlock = new();
 
     private static ModuleBase directionNoise;
 
     private static readonly Material TornadoMaterial = MaterialPool.MatFrom("Things/Ethereal/Tornado",
         ShaderDatabase.Transparent, MapMaterialRenderQueues.Tornado);
 
-    private static readonly FloatRange PartsDistanceFromCenter = new FloatRange(1f, FarDamageRadius);
+    private static readonly FloatRange PartsDistanceFromCenter = new(1f, FarDamageRadius);
 
     private static readonly float ZOffsetBias = -4f * PartsDistanceFromCenter.min;
 
     private static readonly List<Thing> tmpThings = [];
-
-    private readonly int max_destroyHp = 1000;
-    private readonly int maxHp = 30;
 
     private readonly List<IntVec3> removedRoofsTmp = [];
     private int _hp = 999;
@@ -85,14 +85,14 @@ public class yyTornado : ThingWithComps
 
     private int ticksLeftToDisappear = -1;
 
-    private int hp
+    private int Hp
     {
         get => _hp;
         set
         {
-            if (value > maxHp)
+            if (value > MaxHp)
             {
-                _hp = maxHp;
+                _hp = MaxHp;
             }
             else if (value < 0)
             {
@@ -124,15 +124,15 @@ public class yyTornado : ThingWithComps
         Scribe_Values.Look(ref spawnTick, "spawnTick");
         Scribe_Values.Look(ref leftFadeOutTicks, "leftFadeOutTicks");
         Scribe_Values.Look(ref ticksLeftToDisappear, "ticksLeftToDisappear");
-        Scribe_Values.Look(ref _hp, "_hp", maxHp);
-        Scribe_Values.Look(ref destroyHp, "destroyHp", max_destroyHp);
+        Scribe_Values.Look(ref _hp, "_hp", MaxHp);
+        Scribe_Values.Look(ref destroyHp, "destroyHp", MaxDestroyHp);
     }
 
 
     public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
-        hp = maxHp;
-        destroyHp = max_destroyHp;
+        Hp = MaxHp;
+        destroyHp = MaxDestroyHp;
         base.SpawnSetup(map, respawningAfterLoad);
         if (!respawningAfterLoad)
         {
@@ -144,12 +144,12 @@ public class yyTornado : ThingWithComps
             ticksLeftToDisappear = new IntRange(50000, 70000).RandomInRange;
         }
 
-        CreateSustainer();
+        createSustainer();
     }
 
-    public override void Tick()
+    protected override void Tick()
     {
-        hp++;
+        Hp++;
         if (!Spawned)
         {
             return;
@@ -157,11 +157,11 @@ public class yyTornado : ThingWithComps
 
         if (sustainer == null)
         {
-            CreateSustainer();
+            createSustainer();
         }
 
         sustainer?.Maintain();
-        UpdateSustainerVolume();
+        updateSustainerVolume();
         GetComp<CompWindSource>().wind = Wind * FadeInOutFactor;
         if (leftFadeOutTicks > 0)
         {
@@ -173,10 +173,7 @@ public class yyTornado : ThingWithComps
         }
         else
         {
-            if (directionNoise == null)
-            {
-                directionNoise = new Perlin(0.0020000000949949026, 2.0, 0.5, 4, 1948573612, QualityMode.Medium);
-            }
+            directionNoise ??= new Perlin(0.0020000000949949026, 2.0, 0.5, 4, 1948573612, QualityMode.Medium);
 
             direction +=
                 (float)directionNoise.GetValue(Find.TickManager.TicksAbs, thingIDNumber % 500 * 1000f, 0.0) * 0.78f;
@@ -201,12 +198,12 @@ public class yyTornado : ThingWithComps
                 Position = intVec;
                 if (this.IsHashIntervalTick(120))
                 {
-                    DamageCloseThings();
+                    damageCloseThings();
                 }
 
                 if (Rand.MTBEventOccurs(FarDamageMTBTicks, 1f, 0.25f))
                 {
-                    DamageFarThings();
+                    damageFarThings();
                 }
 
                 /*
@@ -225,7 +222,7 @@ public class yyTornado : ThingWithComps
                     }
                 }
 
-                if (this.IsHashIntervalTick(SpawnMoteEveryTicks) && !CellImmuneToDamage(Position))
+                if (this.IsHashIntervalTick(SpawnMoteEveryTicks) && !cellImmuneToDamage(Position))
                 {
                     /*
                         float num = Rand.Range(0.6f, 1f);
@@ -255,32 +252,33 @@ public class yyTornado : ThingWithComps
         for (var i = 0; i < makeNum; i++)
         {
             // 높이
-            DrawTornadoPart(PartsDistanceFromCenter.RandomInRange, Rand.Range(0f, 360f), Rand.Range(0.9f, 1.1f));
+            drawTornadoPart(PartsDistanceFromCenter.RandomInRange, Rand.Range(0f, 360f), Rand.Range(0.9f, 1.1f));
         }
 
         Rand.PopState();
     }
 
-    private void DrawTornadoPart(float distanceFromCenter, float initialAngle, float speedMultiplier)
+    private void drawTornadoPart(float distanceFromCenter, float initialAngle, float speedMultiplier)
     {
         var ticksGame = Find.TickManager.TicksGame;
         var num = 1f / distanceFromCenter;
         var num2 = 25f * speedMultiplier * num;
         var num3 = (initialAngle + (ticksGame * num2)) % 360f;
-        var vector = realPosition.Moved(num3, AdjustedDistanceFromCenter(distanceFromCenter));
+        var vector = realPosition.Moved(num3, adjustedDistanceFromCenter(distanceFromCenter));
         vector.y += distanceFromCenter * 1.5f; // 높이
         vector.y += ZOffsetBias;
         var a = new Vector3(vector.x, AltitudeLayer.Weather.AltitudeFor() + (0.0454545468f * Rand.Range(0f, 1f)),
             vector.y);
         var num4 = (distanceFromCenter * 1f) + 18f; // 크기
         var num5 = 1f;
-        if (num3 > 270f)
+        switch (num3)
         {
-            num5 = GenMath.LerpDouble(270f, 360f, 0f, 1f, num3);
-        }
-        else if (num3 > 180f)
-        {
-            num5 = GenMath.LerpDouble(180f, 270f, 1f, 0f, num3);
+            case > 270f:
+                num5 = GenMath.LerpDouble(270f, 360f, 0f, 1f, num3);
+                break;
+            case > 180f:
+                num5 = GenMath.LerpDouble(180f, 270f, 1f, 0f, num3);
+                break;
         }
 
         var num6 = Mathf.Min(distanceFromCenter / (PartsDistanceFromCenter.max + 2f), 1f);
@@ -294,37 +292,37 @@ public class yyTornado : ThingWithComps
         Graphics.DrawMesh(MeshPool.plane10, matrix, TornadoMaterial, 0, null, 0, matPropertyBlock); // 메쉬
     }
 
-    private float AdjustedDistanceFromCenter(float distanceFromCenter)
+    private static float adjustedDistanceFromCenter(float distanceFromCenter)
     {
         var num = Mathf.Min(distanceFromCenter / 8f, 1f);
         num *= num;
         return distanceFromCenter * num;
     }
 
-    private void UpdateSustainerVolume()
+    private void updateSustainerVolume()
     {
         sustainer.info.volumeFactor = FadeInOutFactor * 0.4f; // 토네이도 볼륨
     }
 
-    private void CreateSustainer()
+    private void createSustainer()
     {
         LongEventHandler.ExecuteWhenFinished(delegate
         {
             var tornado = SoundDefOf.Tornado;
             sustainer = tornado.TrySpawnSustainer(SoundInfo.InMap(this, MaintenanceType.PerTick));
-            UpdateSustainerVolume();
+            updateSustainerVolume();
         });
     }
 
-    private void DamageCloseThings()
+    private void damageCloseThings()
     {
-        var maxDist = 9f;
+        const float maxDist = 9f;
         var num = GenRadial.NumCellsInRadius(maxDist); // 공격범위
         for (var i = 0; i < num; i++)
         {
             var intVec = Position + GenRadial.RadialPattern[i];
 
-            if (!intVec.InBounds(Map) || CellImmuneToDamage(intVec))
+            if (!intVec.InBounds(Map) || cellImmuneToDamage(intVec))
             {
                 continue;
             }
@@ -346,52 +344,24 @@ public class yyTornado : ThingWithComps
             var dist = intVec.DistanceTo(Position);
             var damageFactor = GenMath.LerpDouble(0f, 8.4f, maxDist, 0.4f, dist);
 
-            DoDamage(intVec, damageFactor);
+            doDamage(intVec, damageFactor);
         }
     }
 
-    private void DamageFarThings()
+    private void damageFarThings()
     {
         var c = (from x in GenRadial.RadialCellsAround(Position, FarDamageRadius, true)
             where x.InBounds(Map)
             select x).RandomElement();
-        if (CellImmuneToDamage(c))
+        if (cellImmuneToDamage(c))
         {
             return;
         }
 
-        DoDamage(c, 0.5f);
+        doDamage(c, 0.5f);
     }
 
-    private void DestroyRoofs()
-    {
-        removedRoofsTmp.Clear();
-        foreach (var intVec in from x in GenRadial.RadialCellsAround(Position, CloseDamageRadius, true)
-                 where x.InBounds(Map)
-                 select x)
-        {
-            if (CellImmuneToDamage(intVec) || !intVec.Roofed(Map))
-            {
-                continue;
-            }
-
-            var roof = intVec.GetRoof(Map);
-            if (roof.isThickRoof || roof.isNatural)
-            {
-                continue;
-            }
-
-            RoofCollapserImmediate.DropRoofInCells(intVec, Map);
-            removedRoofsTmp.Add(intVec);
-        }
-
-        if (removedRoofsTmp.Count > 0)
-        {
-            RoofCollapseCellsFinder.CheckCollapseFlyingRoofs(removedRoofsTmp, Map, true);
-        }
-    }
-
-    private bool CellImmuneToDamage(IntVec3 c)
+    private bool cellImmuneToDamage(IntVec3 c)
     {
         if (c.Roofed(Map) && c.GetRoof(Map).isThickRoof)
         {
@@ -403,7 +373,7 @@ public class yyTornado : ThingWithComps
                (edifice.def.building.isNaturalRock || edifice.def == ThingDefOf.Wall && edifice.Faction == null);
     }
 
-    private void DoDamage(IntVec3 c, float damageFactor)
+    private void doDamage(IntVec3 c, float damageFactor)
     {
         // 데미지 조절
         damageFactor *= 0.16f * modBase.val_yyTornado;
@@ -493,13 +463,13 @@ public class yyTornado : ThingWithComps
     private void changeDirection(int dmg)
     {
         // 체력감소에 따라 방향전환
-        hp -= dmg;
-        if (hp > 0)
+        Hp -= dmg;
+        if (Hp > 0)
         {
             return;
         }
 
-        hp = maxHp;
+        Hp = MaxHp;
         direction = Rand.Range(0f, 360f);
     }
 }

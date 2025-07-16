@@ -9,22 +9,22 @@ public class GameCondition_yyCold : GameCondition
 {
     public override int TransitionTicks => 6000;
 
-    private int active_tick => (Find.TickManager.TicksAbs % GenDate.TicksPerYear) - (GenDate.TicksPerQuadrum * 3);
+    private static int ActiveTick => (Find.TickManager.TicksAbs % GenDate.TicksPerYear) - (GenDate.TicksPerQuadrum * 3);
 
-    private float active_factor => Mathf.Clamp(Mathf.Max(active_tick, 0) / (float)GenDate.TicksPerQuadrum, 0f, 1f);
+    private static float ActiveFactor => Mathf.Clamp(Mathf.Max(ActiveTick, 0) / (float)GenDate.TicksPerQuadrum, 0f, 1f);
 
-    private List<SkyOverlay> overlays
+    private static List<SkyOverlay> Overlays
     {
         get
         {
             var ar = new List<SkyOverlay>();
-            if (active_tick <= 0)
+            if (ActiveTick <= 0)
             {
                 return ar;
             }
 
             SkyOverlay sky = new WeatherOverlay_fastWind();
-            sky.OverlayColor = new Color(0.6f, 0.6f, 0.9f, 0.25f); // 바람 색깔
+            sky.SetOverlayColor(new Color(0.6f, 0.6f, 0.9f, 0.25f)); // 바람 색깔
             ar.Add(sky);
 
             return ar;
@@ -48,18 +48,18 @@ public class GameCondition_yyCold : GameCondition
         base.GameConditionTick();
 
         var affectedMaps = AffectedMaps;
-        util.threatMultiply = 1f - (active_factor * modBase.val_threrat);
+        util.threatMultiply = 1f - (ActiveFactor * modBase.val_threrat);
 
-        if (active_tick < 0)
+        if (ActiveTick < 0)
         {
             return;
         }
 
-        foreach (var overlay in overlays)
+        foreach (var overlay in Overlays)
         {
             foreach (var map in affectedMaps)
             {
-                overlay.TickOverlay(map);
+                overlay.TickOverlay(map, ActiveFactor);
             }
         }
     }
@@ -68,7 +68,7 @@ public class GameCondition_yyCold : GameCondition
     public override float TemperatureOffset()
     {
         //Log.Message(active_factor.ToString());
-        return active_factor * modBase.val_yyCold;
+        return ActiveFactor * modBase.val_yyCold;
     }
 
     // 하늘 색깔
@@ -83,7 +83,7 @@ public class GameCondition_yyCold : GameCondition
     // 하늘 색깔
     public override float SkyTargetLerpFactor(Map map)
     {
-        return active_factor;
+        return ActiveFactor;
     }
 
 
@@ -110,7 +110,7 @@ public class GameCondition_yyCold : GameCondition
             switch (thing.def.category)
             {
                 case ThingCategory.Item:
-                    thing.TakeDamage(new DamageInfo(DamageDefOf.Rotting, active_factor * 2.5f));
+                    thing.TakeDamage(new DamageInfo(DamageDefOf.Rotting, ActiveFactor * 2.5f));
                     break;
                 case ThingCategory.Pawn:
                     if (thing is Pawn p)
@@ -143,7 +143,7 @@ public class GameCondition_yyCold : GameCondition
 
     public override void GameConditionDraw(Map map)
     {
-        foreach (var skyOverlay in overlays)
+        foreach (var skyOverlay in Overlays)
         {
             skyOverlay.DrawOverlay(map);
         }
@@ -151,6 +151,6 @@ public class GameCondition_yyCold : GameCondition
 
     public override List<SkyOverlay> SkyOverlays(Map map)
     {
-        return overlays;
+        return Overlays;
     }
 }

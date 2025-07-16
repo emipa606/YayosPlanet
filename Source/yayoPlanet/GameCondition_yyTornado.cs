@@ -8,7 +8,7 @@ namespace yayoPlanet;
 public class GameCondition_yyTornado : GameCondition
 {
     // 하늘 색깔
-    private readonly SkyColorSet SkyColors = new SkyColorSet(
+    private readonly SkyColorSet skyColors = new(
         new Color(0.7f, 0.4f, 0.25f), //sky
         new Color(0.6f, 0.25f, 0.15f), // shadow
         new Color(0.7f, 0.4f, 0.25f), 1f); // overay
@@ -17,23 +17,23 @@ public class GameCondition_yyTornado : GameCondition
 
     public override int TransitionTicks => 6000;
 
-    private int active_tick => (Find.TickManager.TicksAbs % GenDate.TicksPerYear) - (GenDate.TicksPerQuadrum * 3);
+    private static int ActiveTick => (Find.TickManager.TicksAbs % GenDate.TicksPerYear) - (GenDate.TicksPerQuadrum * 3);
 
-    private float active_factor =>
-        Mathf.Clamp(Mathf.Max(active_tick - GenDate.TicksPerDay, 0) / (float)GenDate.TicksPerQuadrum, 0f, 1f);
+    private static float ActiveFactor =>
+        Mathf.Clamp(Mathf.Max(ActiveTick - GenDate.TicksPerDay, 0) / (float)GenDate.TicksPerQuadrum, 0f, 1f);
 
-    private List<SkyOverlay> overlays
+    private static List<SkyOverlay> Overlays
     {
         get
         {
             var ar = new List<SkyOverlay>();
-            if (active_tick <= 0)
+            if (ActiveTick <= 0)
             {
                 return ar;
             }
 
             SkyOverlay sky = new WeatherOverlay_fastWind();
-            sky.OverlayColor = new Color(0.7f, 0.3f, 0.2f, 0.7f * active_factor);
+            sky.SetOverlayColor(new Color(0.7f, 0.3f, 0.2f, 0.7f * ActiveFactor));
             ar.Add(sky);
 
             return ar;
@@ -60,14 +60,14 @@ public class GameCondition_yyTornado : GameCondition
 
     public override void GameConditionTick()
     {
-        util.threatMultiply = 1f - (active_factor * modBase.val_threrat);
+        util.threatMultiply = 1f - (ActiveFactor * modBase.val_threrat);
 
         var affectedMaps = AffectedMaps;
 
-        if (active_tick >= 0 && Find.TickManager.TicksAbs >= nextTick &&
-            active_tick <= GenDate.TicksPerQuadrum - GenDate.TicksPerDay)
+        if (ActiveTick >= 0 && Find.TickManager.TicksAbs >= nextTick &&
+            ActiveTick <= GenDate.TicksPerQuadrum - GenDate.TicksPerDay)
         {
-            nextTick = Find.TickManager.TicksAbs + (int)(500 + (GenDate.TicksPerDay * 0.5f * (1f - active_factor)));
+            nextTick = Find.TickManager.TicksAbs + (int)(500 + (GenDate.TicksPerDay * 0.5f * (1f - ActiveFactor)));
 
             foreach (var map in affectedMaps)
             {
@@ -75,16 +75,16 @@ public class GameCondition_yyTornado : GameCondition
             }
         }
 
-        if (active_tick < 0)
+        if (ActiveTick < 0)
         {
             return;
         }
 
-        foreach (var overlay in overlays)
+        foreach (var overlay in Overlays)
         {
             foreach (var map in affectedMaps)
             {
-                overlay.TickOverlay(map);
+                overlay.TickOverlay(map, ActiveFactor);
             }
         }
     }
@@ -92,7 +92,7 @@ public class GameCondition_yyTornado : GameCondition
 
     public override void GameConditionDraw(Map map)
     {
-        foreach (var overlay in overlays)
+        foreach (var overlay in Overlays)
         {
             overlay.DrawOverlay(map);
         }
@@ -100,24 +100,24 @@ public class GameCondition_yyTornado : GameCondition
 
     public override List<SkyOverlay> SkyOverlays(Map map)
     {
-        return overlays;
+        return Overlays;
     }
 
     public override SkyTarget? SkyTarget(Map map)
     {
-        return new SkyTarget(1f, SkyColors, 1f, 1f);
+        return new SkyTarget(1f, skyColors, 1f, 1f);
     }
 
     // 하늘 색깔
     public override float SkyTargetLerpFactor(Map map)
     {
-        return Mathf.Clamp(active_factor * 1.5f, 0f, 1f);
+        return Mathf.Clamp(ActiveFactor * 1.5f, 0f, 1f);
     }
 
 
     private void Spawn(Map map)
     {
-        if (!TryFindCell(out var intVec, map))
+        if (!tryFindCell(out var intVec, map))
         {
             return;
         }
@@ -126,10 +126,11 @@ public class GameCondition_yyTornado : GameCondition
     }
 
 
-    private bool TryFindCell(out IntVec3 cell, Map map)
+    private static bool tryFindCell(out IntVec3 cell, Map map)
     {
         var maxMineables = ThingSetMaker_Meteorite.MineablesCountRange.max;
-        return CellFinderLoose.TryFindSkyfallerCell(ThingDefOf.MeteoriteIncoming, map, out cell, 10, default, -1, false,
+        return CellFinderLoose.TryFindSkyfallerCell(ThingDefOf.MeteoriteIncoming, map, TerrainAffordanceDefOf.Walkable,
+            out cell, 10, default, -1, false,
             false, false, false, true, true, delegate(IntVec3 x)
             {
                 var num = Mathf.CeilToInt(Mathf.Sqrt(maxMineables)) + 2;

@@ -7,7 +7,7 @@ public static class util
 {
     public static float threatMultiply = 1f;
 
-    public static bool isYayoGC(Map map)
+    public static bool IsYayoGC(Map map)
     {
         var result = false;
         foreach (var gc in map.gameConditionManager.ActiveConditions)
@@ -21,13 +21,13 @@ public static class util
         return result;
     }
 
-    public static GameConditionDef getRandomGcDef()
+    private static GameConditionDef getRandomGcDef()
     {
         return modBase.ar_gc[Rand.Range(0, modBase.ar_gc.Count)];
     }
 
 
-    public static void setRandomYayoGc(Map map)
+    public static void SetRandomYayoGc(Map map)
     {
         GameCondition gc;
         if (modBase.bl_randomType)

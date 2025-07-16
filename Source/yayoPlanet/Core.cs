@@ -29,11 +29,11 @@ public class Core(Map map) : MapComponent(map)
         }
 
         var passedYearAbs = Find.TickManager.TicksAbs / GenDate.TicksPerYear;
-        if (!util.isYayoGC(map)
+        if (!util.IsYayoGC(map)
             && passedYearAbs >= modBase.eventStart
             && (passedYearAbs - modBase.eventStart) % modBase.eventCycle == 0)
         {
-            util.setRandomYayoGc(map);
+            util.SetRandomYayoGc(map);
         }
     }
 }

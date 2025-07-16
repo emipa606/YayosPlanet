@@ -9,9 +9,9 @@ public class GameCondition_yyHot : GameCondition
     public override int TransitionTicks => 6000;
 
 
-    private int active_tick => (Find.TickManager.TicksAbs % GenDate.TicksPerYear) - (GenDate.TicksPerQuadrum * 3);
+    private static int ActiveTick => (Find.TickManager.TicksAbs % GenDate.TicksPerYear) - (GenDate.TicksPerQuadrum * 3);
 
-    private float active_factor => Mathf.Clamp(Mathf.Max(active_tick, 0) / (float)GenDate.TicksPerQuadrum, 0f, 1f);
+    private static float ActiveFactor => Mathf.Clamp(Mathf.Max(ActiveTick, 0) / (float)GenDate.TicksPerQuadrum, 0f, 1f);
 
     public override void Init()
     {
@@ -28,13 +28,13 @@ public class GameCondition_yyHot : GameCondition
     public override void GameConditionTick()
     {
         base.GameConditionTick();
-        util.threatMultiply = 1f - (active_factor * modBase.val_threrat);
+        util.threatMultiply = 1f - (ActiveFactor * modBase.val_threrat);
     }
 
     // 오프셋 기온
     public override float TemperatureOffset()
     {
-        return active_factor * modBase.val_yyHot;
+        return ActiveFactor * modBase.val_yyHot;
     }
 
     // 하늘 색깔
@@ -49,7 +49,7 @@ public class GameCondition_yyHot : GameCondition
     // 하늘 색깔
     public override float SkyTargetLerpFactor(Map map)
     {
-        return active_factor;
+        return ActiveFactor;
     }
 
 

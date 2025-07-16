@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+  <!-- EN: IceAge is Coming -->
+  <yyCold.label>IceAge is Coming</yyCold.label>
+  <!-- EN: The ice age is coming in the 4th quarter. -->
+  <yyCold.description>The ice age is coming in the 4th quarter.</yyCold.description>
+  <!-- EN: Inferno is Coming -->
+  <yyHot.label>Inferno is Coming</yyHot.label>
+  <!-- EN: Inferno is coming in the 4th quarter. -->
+  <yyHot.description>Inferno is coming in the 4th quarter.</yyHot.description>
+  <!-- EN: Sandstorm is Coming -->
+  <yyTornado.label>Sandstorm is Coming</yyTornado.label>
+  <!-- EN: Sandstorm is coming in the 4th quarter. -->
+  <yyTornado.description>Sandstorm is coming in the 4th quarter.</yyTornado.description>
+</LanguageData>

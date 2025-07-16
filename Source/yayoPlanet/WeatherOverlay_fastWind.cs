@@ -4,7 +4,7 @@ using Verse;
 namespace RimWorld;
 
 [StaticConstructorOnStartup]
-public class WeatherOverlay_fastWind : SkyOverlay
+public class WeatherOverlay_fastWind : WeatherOverlayDualPanner
 {
     private static readonly Material FogOverlayWorld = MatLoader.LoadMat("Weather/FogOverlayWorld");
 

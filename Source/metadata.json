@@ -2,5 +2,14 @@
   "Continued": true,
   "CanAdd": "0",
   "CanRemove": "2",
-  "PreviewVersion": "1.5"
+  "PreviewVersion": "1.6",
+  "Patches": false,
+  "Defs": true,
+  "Assemblies": true,
+  "LinesOfCode": 34965,
+  "LinesOfXML": 1573,
+  "CodeBaseSize": 72,
+  "LastXmlCleaning": "2025-07-16T20:31:08.3257141+02:00",
+  "SocialImageSet": true,
+  "SearchTags": " seasonal catastrophe"
 }
