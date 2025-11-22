@@ -48,7 +48,7 @@ public class GameCondition_yyCold : GameCondition
         base.GameConditionTick();
 
         var affectedMaps = AffectedMaps;
-        util.threatMultiply = 1f - (ActiveFactor * modBase.val_threrat);
+        util.threatMultiply = 1f - (ActiveFactor * YayoPlanetMod.val_threat);
 
         if (ActiveTick < 0)
         {
@@ -68,7 +68,7 @@ public class GameCondition_yyCold : GameCondition
     public override float TemperatureOffset()
     {
         //Log.Message(active_factor.ToString());
-        return ActiveFactor * modBase.val_yyCold;
+        return ActiveFactor * YayoPlanetMod.val_yyCold;
     }
 
     // 하늘 색깔
