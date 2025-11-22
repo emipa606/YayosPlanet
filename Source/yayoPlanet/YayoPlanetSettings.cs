@@ -1,26 +1,23 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using Verse;
+﻿using Verse;
 
 namespace yayoPlanet;
 
 public class YayoPlanetSettings : ModSettings
 {
-    public int eventStart = 1;
-    public int eventCycle = 2;
-
     public bool bl_randomType;
 
     public bool bl_yyCold = true;
-    public float val_yyCold = -270f;
 
     public bool bl_yyHot = true;
-    public float val_yyHot = 200f;
 
     public bool bl_yyTornado = true;
-    public float val_yyTornado = 1f;
+    public int eventCycle = 2;
+    public int eventStart = 1;
 
     public float val_threat = 0.5f;
+    public float val_yyCold = -270f;
+    public float val_yyHot = 200f;
+    public float val_yyTornado = 1f;
 
     public override void ExposeData()
     {

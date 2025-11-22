@@ -1,33 +1,57 @@
-# GitHub Copilot Instructions for RimWorld Mod Project
+# GitHub Copilot Instructions for Yayo's Planet (Continued) Mod
 
 ## Mod Overview and Purpose
-This project enhances the gameplay of RimWorld by introducing dynamic planet-based events that influence the game environment. The mod is built for the .NET Framework 4.8 and integrates seamlessly with existing game mechanics through custom C# classes and XML configurations.
+
+**Yayo's Planet (Continued)** is a mod for RimWorld that introduces seasonal catastrophic events. These events occur every 4th quarter of the in-game year, presenting unique survival challenges such as extreme weather conditions that players must prepare for and endure. Each year begins with players knowing the type of disaster for the upcoming fourth quarter. After the disaster period ends, temperatures return to normal before the cycle repeats.
 
 ## Key Features and Systems
-- **Dynamic Weather Events**: Includes unique weather conditions like extreme cold, heat, and tornadoes that impact gameplay.
-- **Environmental Effects**: The mod simulates realistic environmental dangers, adding depth and challenge to the player experience.
-- **Custom Storyteller Integrations**: Adjusts threat levels and event frequencies dynamically through custom storytellers.
+
+- **Disasters**: Introduces three primary disasters:
+  - *Ice Age*: Brings very cold temperatures.
+  - *Inferno*: Leads to scorching hot temperatures.
+  - *Sandstorm*: Involves numerous tornadoes. These tornadoes cannot penetrate walls or damage items indoors.
+
+- **Temperature Control**: Offers adjustable temperature settings in the options menu for each disaster type.
+
+- **Mod Recommendations**:
+  - **Dubs Bad Hygiene**: Adds items for enhanced temperature control.
+  - **Yayo's Nature**: Alters biome conditions every 60 days for more environmental variety.
 
 ## Coding Patterns and Conventions
-- **Class Organization**: The mod utilizes well-organized classes that extend RimWorld's base classes such as `MapComponent`, `GameCondition`, `SkyOverlay`, and `ThingWithComps`.
-- **Consistent Naming**: Follows C# naming conventions for class and method names, e.g., `GameCondition_yyCold` and `Spawn`.
-- **Single Responsibility Principle**: Each class and method serves a specific purpose to maintain code readability and ease of maintenance.
+
+- The mod is developed primarily using C#, following the .NET Framework 4.8.
+- **Class Naming**: Each class corresponds to specific mod functionalities and follows a consistent naming pattern (e.g., `GameCondition_yyCold`).
+- **Method Structure**: Typically private helper methods perform complex functionality within the main class methods.
 
 ## XML Integration
-While the current summary does not specify XML files, it is assumed that XML is used for configuring and defining mod settings, events, and storyteller behaviors in RimWorld. Future modifications to XML files should:
-- Define new game conditions and event parameters.
-- Adjust probability settings for dynamic events in coordination with C# logic.
-- Ensure integration with Harmony patches for consistent behavior across different game versions.
+
+XML integration is often required for defining in-game elements such as:
+- Events and events' descriptions.
+- Configuration settings that can be adjusted by the player.
+
+XML allows easy modification and extension of game content without needing deep programming knowledge.
 
 ## Harmony Patching
-- **HarmonyPatches Class**: Utilizes the Harmony library to patch game methods for extending or altering native game behavior without modifying the base game code.
-- **Patch Methods**: Use descriptive method names and annotations to maintain clear documentation of each patch's purpose and scope.
+
+Harmony is leveraged to patch existing game methods and inject custom logic where needed. This ensures that the mod interacts seamlessly with the core game mechanics and potentially other mods, allowing:
+- Modifications of existing game conditions to introduce or modify disaster behavior.
+- Interaction with the game's storyteller and other systems.
 
 ## Suggestions for Copilot
-1. **Class Definitions**: When creating new classes, ensure they extend the most suitable base class (e.g., `GameCondition` or `MapComponent`) to integrate properly.
-2. **Event Handling**: Implement robust error handling and logging at key points in dynamic event classes (e.g., `yyTornado`) to troubleshoot issues faster.
-3. **XML Files**: If generating XML configuration files, align properties with corresponding C# class attributes for consistency.
-4. **Conditions and Utility**: Develop utility methods in `util` and `util2` for common calculations or checks, promoting code reuse and simplicity.
-5. **Performance Optimization**: Suggest improvements, such as caching frequently accessed data or optimizing loop operations, especially in performance-critical classes like weather effects or threat evaluations.
 
-By adhering to these guidelines, Copilot can assist developers in extending this mod further while maintaining a high standard of code quality and gameplay integration.
+1. **Harmony Patching**:
+   - Suggest patches for parts of the game's API that handle weather or map conditions to efficiently inject new disaster behaviors.
+
+2. **Event Scheduling**:
+   - Recommend methods to schedule events dynamically based on the game's in-game time loops and seasons.
+
+3. **Error Handling**:
+   - Provide suggestions for logging and debugging techniques to handle and trace errors effectively, given the integration complexities.
+
+4. **Performance Optimization**:
+   - Offer tips on optimizing methods that might involve intensive computations, such as those managing the tornado's path or temperature simulations.
+
+5. **User Configuration**:
+   - Propose methods for managing user settings, potentially through XML definition files or advanced settings management in C# to enhance user configurability and experiences.
+
+By using the guidelines provided in this document, you can effectively utilize Copilot to assist you in working with the Yayo's Planet (Continued) mod codebase. This includes introducing further features, optimizing existing code, or adapting the mod to new use cases.

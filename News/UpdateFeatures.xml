@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+	<HugsLib.UpdateFeatureDef Abstract="true" Name="YayosPlanet_UpdateFeatureBase">
+		<modNameReadable>YayosPlanet</modNameReadable>
+		<linkUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3009789220</linkUrl>
+	</HugsLib.UpdateFeatureDef>
+	<HugsLib.UpdateFeatureDef ParentName="YayosPlanet_UpdateFeatureBase">
+		<defName>YayosPlanet_1_6_0</defName>
+		<assemblyVersion>1.6.0</assemblyVersion>
+		<content>This update removes the HugsLib requirement, thanks to Zaljerem!</content>
+	</HugsLib.UpdateFeatureDef>
+</Defs>
+

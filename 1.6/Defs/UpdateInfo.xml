@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+	<TabulaRasa.UpdateDef Abstract="true" Name="YayosPlanet_UpdateInfoBase">
+		<linkUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3009789220</linkUrl>
+		<banner>UpdateInfo/YayosPlanet</banner>
+	</TabulaRasa.UpdateDef>
+	<TabulaRasa.UpdateDef ParentName="YayosPlanet_UpdateInfoBase" MayRequire="neronix17.toolbox">
+		<defName>YayosPlanet_1_6_0</defName>
+		<date>2025/11/22</date>
+		<content>This update removes the HugsLib requirement, thanks to Zaljerem!</content>
+	</TabulaRasa.UpdateDef>
+</Defs>
+

@@ -29,9 +29,9 @@ public class Core(Map map) : MapComponent(map)
         }
 
         var passedYearAbs = Find.TickManager.TicksAbs / GenDate.TicksPerYear;
-        if (!util.IsYayoGC(map)
-            && passedYearAbs >= YayoPlanetMod.eventStart
-            && (passedYearAbs - YayoPlanetMod.eventStart) % YayoPlanetMod.eventCycle == 0)
+        if (!util.IsYayoGC(map) &&
+            passedYearAbs >= YayoPlanetMod.eventStart &&
+            (passedYearAbs - YayoPlanetMod.eventStart) % YayoPlanetMod.eventCycle == 0)
         {
             util.SetRandomYayoGc(map);
         }

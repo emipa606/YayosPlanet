@@ -7,7 +7,6 @@ namespace yayoPlanet;
 
 public class GameCondition_yyCold : GameCondition
 {
-    public override int TransitionTicks => 6000;
 
     private static int ActiveTick => (Find.TickManager.TicksAbs % GenDate.TicksPerYear) - (GenDate.TicksPerQuadrum * 3);
 
@@ -31,66 +30,9 @@ public class GameCondition_yyCold : GameCondition
         }
     }
 
-    public override void Init()
-    {
-        base.Init();
-        Messages.Message("nt_cold".Translate(), MessageTypeDefOf.NeutralEvent);
-    }
-
-    public override void End()
-    {
-        base.End();
-        util.threatMultiply = 1f;
-    }
-
-    public override void GameConditionTick()
-    {
-        base.GameConditionTick();
-
-        var affectedMaps = AffectedMaps;
-        util.threatMultiply = 1f - (ActiveFactor * YayoPlanetMod.val_threat);
-
-        if (ActiveTick < 0)
-        {
-            return;
-        }
-
-        foreach (var overlay in Overlays)
-        {
-            foreach (var map in affectedMaps)
-            {
-                overlay.TickOverlay(map, ActiveFactor);
-            }
-        }
-    }
-
-    // 오프셋 기온
-    public override float TemperatureOffset()
-    {
-        //Log.Message(active_factor.ToString());
-        return ActiveFactor * YayoPlanetMod.val_yyCold;
-    }
-
-    // 하늘 색깔
-    public override SkyTarget? SkyTarget(Map map)
-    {
-        return new SkyTarget(0.75f, new SkyColorSet(
-            new Color(0.2f, 0.2f, 0.85f), //sky
-            new Color(0.1f, 0.1f, 0.95f), // shadow
-            new Color(0.15f, 0.15f, 0.9f), 1f), 1f, 1f);
-    }
-
-    // 하늘 색깔
-    public override float SkyTargetLerpFactor(Map map)
-    {
-        return ActiveFactor;
-    }
-
 
     public override float AnimalDensityFactor(Map map)
-    {
-        return Mathf.Clamp01(1f - (Mathf.Abs(map.mapTemperature.OutdoorTemp) / 75f));
-    }
+    { return Mathf.Clamp01(1f - (Mathf.Abs(map.mapTemperature.OutdoorTemp) / 75f)); }
 
 
     // 셀 데미지
@@ -140,6 +82,12 @@ public class GameCondition_yyCold : GameCondition
         }
     }
 
+    public override void End()
+    {
+        base.End();
+        util.threatMultiply = 1f;
+    }
+
 
     public override void GameConditionDraw(Map map)
     {
@@ -149,8 +97,58 @@ public class GameCondition_yyCold : GameCondition
         }
     }
 
-    public override List<SkyOverlay> SkyOverlays(Map map)
+    public override void GameConditionTick()
     {
-        return Overlays;
+        base.GameConditionTick();
+
+        var affectedMaps = AffectedMaps;
+        util.threatMultiply = 1f - (ActiveFactor * YayoPlanetMod.val_threat);
+
+        if (ActiveTick < 0)
+        {
+            return;
+        }
+
+        foreach (var overlay in Overlays)
+        {
+            foreach (var map in affectedMaps)
+            {
+                overlay.TickOverlay(map, ActiveFactor);
+            }
+        }
     }
+
+    public override void Init()
+    {
+        base.Init();
+        Messages.Message("nt_cold".Translate(), MessageTypeDefOf.NeutralEvent);
+    }
+
+    public override List<SkyOverlay> SkyOverlays(Map map) { return Overlays; }
+
+    // 하늘 색깔
+    public override SkyTarget? SkyTarget(Map map)
+    {
+        return new SkyTarget(
+            0.75f,
+            new SkyColorSet(
+                new Color(0.2f, 0.2f, 0.85f), //sky
+                new Color(0.1f, 0.1f, 0.95f), // shadow
+                new Color(0.15f, 0.15f, 0.9f),
+                1f),
+            1f,
+            1f);
+    }
+
+    // 하늘 색깔
+    public override float SkyTargetLerpFactor(Map map) { return ActiveFactor; }
+
+    // 오프셋 기온
+    public override float TemperatureOffset()
+    {
+        //Log.Message(active_factor.ToString());
+        return ActiveFactor * YayoPlanetMod.val_yyCold;
+    }
+
+    public override int TransitionTicks => 6000;
 }

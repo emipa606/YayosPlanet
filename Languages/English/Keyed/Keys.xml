@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-
-<YP_ModName>Yayo's Planet (Continued)</YP_ModName>
-
-  <eventCycle_t># Events occur every N years</eventCycle_t>
-  <eventStart_t># First event after N years</eventStart_t>
+  <YP_ModName>Yayo's Planet (Continued)</YP_ModName>
+  <YP_Reset>Reset</YP_Reset>
+  <YP_CurrentModVersion>Installed mod-version: {0}</YP_CurrentModVersion>
+  <eventCycle_t># Events occur every {0} years</eventCycle_t>
+  <eventStart_t># First event after {0} years</eventStart_t>
   <bl_randomType_t># Random Event</bl_randomType_t>
   <bl_yyCold_t># Use IceAge</bl_yyCold_t>
-  <val_yyCold_t>       - Target Temperature</val_yyCold_t>
+  <val_yyCold_t>       - Target Temperature: {0}°C</val_yyCold_t>
   <bl_yyHot_t># Use Inferno</bl_yyHot_t>
-  <val_yyHot_t>       - Target Temperature</val_yyHot_t>
+  <val_yyHot_t>       - Target Temperature: {0}°C</val_yyHot_t>
   <bl_yyTornado_t># Use Sandstorm</bl_yyTornado_t>
-  <val_yyTornado_t>       - Damage value</val_yyTornado_t>
-  <val_threat_t># Decrease in extreme situation</val_threat_t>
+  <val_yyTornado_t>       - Damage value: {0}</val_yyTornado_t>
+  <val_threat_t># Decrease threat in extreme situation: {0}</val_threat_t>
   <val_threat_d>The higher this value, the less the amount of raids in bad situations due to disaster.</val_threat_d>
 </LanguageData>

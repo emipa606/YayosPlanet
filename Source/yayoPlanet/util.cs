@@ -7,12 +7,15 @@ public static class util
 {
     public static float threatMultiply = 1f;
 
+    private static GameConditionDef getRandomGcDef()
+    { return YayoPlanetMod.ar_gc[Rand.Range(0, YayoPlanetMod.ar_gc.Count)]; }
+
     public static bool IsYayoGC(Map map)
     {
         var result = false;
-        foreach (var gc in map.gameConditionManager.ActiveConditions)
+        foreach(var gc in map.gameConditionManager.ActiveConditions)
         {
-            if (gc.def.defName.Contains("yy"))
+            if(gc.def.defName.Contains("yy"))
             {
                 result = true;
             }
@@ -21,24 +24,19 @@ public static class util
         return result;
     }
 
-    private static GameConditionDef getRandomGcDef()
-    {
-        return YayoPlanetMod.ar_gc[Rand.Range(0, YayoPlanetMod.ar_gc.Count)];
-    }
-
 
     public static void SetRandomYayoGc(Map map)
     {
         GameCondition gc;
-        if (YayoPlanetMod.bl_randomType)
+        if(YayoPlanetMod.bl_randomType)
         {
             gc = GameConditionMaker.MakeConditionPermanent(getRandomGcDef());
-        }
-        else
+        } else
         {
             gc = GameConditionMaker.MakeConditionPermanent(
                 YayoPlanetMod.ar_gc[
-                    ((Find.TickManager.TicksAbs / GenDate.TicksPerYear) - YayoPlanetMod.eventStart) / YayoPlanetMod.eventCycle %
+                    ((Find.TickManager.TicksAbs / GenDate.TicksPerYear) - YayoPlanetMod.eventStart) /
+                    YayoPlanetMod.eventCycle %
                     YayoPlanetMod.ar_gc.Count]);
         }
 
