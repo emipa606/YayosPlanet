@@ -376,7 +376,7 @@ public class yyTornado : ThingWithComps
     private void doDamage(IntVec3 c, float damageFactor)
     {
         // 데미지 조절
-        damageFactor *= 0.16f * modBase.val_yyTornado;
+        damageFactor *= 0.16f * YayoPlanetMod.val_yyTornado;
 
         tmpThings.Clear();
 
@@ -437,7 +437,7 @@ public class yyTornado : ThingWithComps
             if (thing.def.category == ThingCategory.Building)
             {
                 num = GenMath.RoundRandom(Mathf.Max(num,
-                    thing.def.BaseMaxHitPoints * 0.02f * modBase.val_yyTornado)); // 체력에 따른 퍼뎀
+                    thing.def.BaseMaxHitPoints * 0.02f * YayoPlanetMod.val_yyTornado)); // 체력에 따른 퍼뎀
             }
 
             if (num <= 0)

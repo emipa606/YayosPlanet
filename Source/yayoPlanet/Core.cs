@@ -11,10 +11,10 @@ public class Core(Map map) : MapComponent(map)
     {
         // 매 틱마다
         base.MapComponentTick();
-        modBase.tickOfYear = Find.TickManager.TicksAbs % GenDate.TicksPerYear;
+        YayoPlanetMod.tickOfYear = Find.TickManager.TicksAbs % GenDate.TicksPerYear;
 
         // 이벤트 종료
-        if (modBase.tickOfYear == 0)
+        if (YayoPlanetMod.tickOfYear == 0)
         {
             for (var i = map.gameConditionManager.ActiveConditions.Count - 1; i >= 0; i--)
             {
@@ -23,15 +23,15 @@ public class Core(Map map) : MapComponent(map)
         }
 
         // 이벤트 예고
-        if (modBase.tickOfYear != notice_tick)
+        if (YayoPlanetMod.tickOfYear != notice_tick)
         {
             return;
         }
 
         var passedYearAbs = Find.TickManager.TicksAbs / GenDate.TicksPerYear;
         if (!util.IsYayoGC(map)
-            && passedYearAbs >= modBase.eventStart
-            && (passedYearAbs - modBase.eventStart) % modBase.eventCycle == 0)
+            && passedYearAbs >= YayoPlanetMod.eventStart
+            && (passedYearAbs - YayoPlanetMod.eventStart) % YayoPlanetMod.eventCycle == 0)
         {
             util.SetRandomYayoGc(map);
         }

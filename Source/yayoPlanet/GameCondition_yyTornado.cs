@@ -60,7 +60,7 @@ public class GameCondition_yyTornado : GameCondition
 
     public override void GameConditionTick()
     {
-        util.threatMultiply = 1f - (ActiveFactor * modBase.val_threrat);
+        util.threatMultiply = 1f - (ActiveFactor * YayoPlanetMod.val_threat);
 
         var affectedMaps = AffectedMaps;
 

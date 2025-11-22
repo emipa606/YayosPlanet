@@ -23,23 +23,23 @@ public static class util
 
     private static GameConditionDef getRandomGcDef()
     {
-        return modBase.ar_gc[Rand.Range(0, modBase.ar_gc.Count)];
+        return YayoPlanetMod.ar_gc[Rand.Range(0, YayoPlanetMod.ar_gc.Count)];
     }
 
 
     public static void SetRandomYayoGc(Map map)
     {
         GameCondition gc;
-        if (modBase.bl_randomType)
+        if (YayoPlanetMod.bl_randomType)
         {
             gc = GameConditionMaker.MakeConditionPermanent(getRandomGcDef());
         }
         else
         {
             gc = GameConditionMaker.MakeConditionPermanent(
-                modBase.ar_gc[
-                    ((Find.TickManager.TicksAbs / GenDate.TicksPerYear) - modBase.eventStart) / modBase.eventCycle %
-                    modBase.ar_gc.Count]);
+                YayoPlanetMod.ar_gc[
+                    ((Find.TickManager.TicksAbs / GenDate.TicksPerYear) - YayoPlanetMod.eventStart) / YayoPlanetMod.eventCycle %
+                    YayoPlanetMod.ar_gc.Count]);
         }
 
         map.gameConditionManager.RegisterCondition(gc);

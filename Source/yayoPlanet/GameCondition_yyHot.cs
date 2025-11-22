@@ -28,13 +28,13 @@ public class GameCondition_yyHot : GameCondition
     public override void GameConditionTick()
     {
         base.GameConditionTick();
-        util.threatMultiply = 1f - (ActiveFactor * modBase.val_threrat);
+        util.threatMultiply = 1f - (ActiveFactor * YayoPlanetMod.val_threat);
     }
 
     // 오프셋 기온
     public override float TemperatureOffset()
     {
-        return ActiveFactor * modBase.val_yyHot;
+        return ActiveFactor * YayoPlanetMod.val_yyHot;
     }
 
     // 하늘 색깔
