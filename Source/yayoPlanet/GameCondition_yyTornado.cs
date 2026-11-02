@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -7,8 +8,6 @@ namespace yayoPlanet;
 
 public class GameCondition_yyTornado : GameCondition
 {
-
-    private int nextTick;
     // 하늘 색깔
     private readonly SkyColorSet skyColors = new(
         new Color(0.7f, 0.4f, 0.25f), //sky
@@ -16,8 +15,37 @@ public class GameCondition_yyTornado : GameCondition
         new Color(0.7f, 0.4f, 0.25f),
         1f); // overay
 
+    private int nextTick;
 
-    private void Spawn(Map map)
+    private static int ActiveTick => (Find.TickManager.TicksAbs % GenDate.TicksPerYear) - (GenDate.TicksPerQuadrum * 3);
+
+    private static float ActiveFactor => Mathf.Clamp(
+        Mathf.Max(ActiveTick - GenDate.TicksPerDay, 0) / (float)GenDate.TicksPerQuadrum,
+        0f,
+        1f);
+
+    private static List<SkyOverlay> Overlays
+    {
+        get
+        {
+            var ar = new List<SkyOverlay>();
+            if (ActiveTick <= 0)
+            {
+                return ar;
+            }
+
+            SkyOverlay sky = new WeatherOverlay_fastWind();
+            sky.SetOverlayColor(new Color(0.7f, 0.3f, 0.2f, 0.7f * ActiveFactor));
+            ar.Add(sky);
+
+            return ar;
+        }
+    }
+
+    public override int TransitionTicks => 6000;
+
+
+    private static void Spawn(Map map)
     {
         if (!tryFindCell(out var intVec, map))
         {
@@ -45,46 +73,18 @@ public class GameCondition_yyTornado : GameCondition
             false,
             true,
             true,
-            delegate (IntVec3 x)
+            delegate(IntVec3 x)
             {
                 var num = Mathf.CeilToInt(Mathf.Sqrt(maxMineables)) + 2;
                 var cellRect = CellRect.CenteredOn(x, num, num);
                 var num2 = 0;
-                foreach (var c in cellRect)
+                foreach (var c in cellRect.Where(c => c.InBounds(map) && c.Standable(map)))
                 {
-                    if (c.InBounds(map) && c.Standable(map))
-                    {
-                        num2++;
-                    }
+                    num2++;
                 }
 
                 return num2 >= maxMineables;
             });
-    }
-
-    private static int ActiveTick => (Find.TickManager.TicksAbs % GenDate.TicksPerYear) - (GenDate.TicksPerQuadrum * 3);
-
-    private static float ActiveFactor => Mathf.Clamp(
-        Mathf.Max(ActiveTick - GenDate.TicksPerDay, 0) / (float)GenDate.TicksPerQuadrum,
-        0f,
-        1f);
-
-    private static List<SkyOverlay> Overlays
-    {
-        get
-        {
-            var ar = new List<SkyOverlay>();
-            if (ActiveTick <= 0)
-            {
-                return ar;
-            }
-
-            SkyOverlay sky = new WeatherOverlay_fastWind();
-            sky.SetOverlayColor(new Color(0.7f, 0.3f, 0.2f, 0.7f * ActiveFactor));
-            ar.Add(sky);
-
-            return ar;
-        }
     }
 
     public override void End()
@@ -146,12 +146,19 @@ public class GameCondition_yyTornado : GameCondition
         Messages.Message("nt_tornado".Translate(), MessageTypeDefOf.NeutralEvent);
     }
 
-    public override List<SkyOverlay> SkyOverlays(Map map) { return Overlays; }
+    public override List<SkyOverlay> SkyOverlays(Map map)
+    {
+        return Overlays;
+    }
 
-    public override SkyTarget? SkyTarget(Map map) { return new SkyTarget(1f, skyColors, 1f, 1f); }
+    public override SkyTarget? SkyTarget(Map map)
+    {
+        return new SkyTarget(1f, skyColors, 1f, 1f);
+    }
 
     // 하늘 색깔
-    public override float SkyTargetLerpFactor(Map map) { return Mathf.Clamp(ActiveFactor * 1.5f, 0f, 1f); }
-
-    public override int TransitionTicks => 6000;
+    public override float SkyTargetLerpFactor(Map map)
+    {
+        return Mathf.Clamp(ActiveFactor * 1.5f, 0f, 1f);
+    }
 }

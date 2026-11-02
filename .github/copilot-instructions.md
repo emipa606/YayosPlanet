@@ -1,57 +1,149 @@
-# GitHub Copilot Instructions for Yayo's Planet (Continued) Mod
+# GitHub Copilot Instructions for Yayo's Planet (Continued)
 
 ## Mod Overview and Purpose
 
-**Yayo's Planet (Continued)** is a mod for RimWorld that introduces seasonal catastrophic events. These events occur every 4th quarter of the in-game year, presenting unique survival challenges such as extreme weather conditions that players must prepare for and endure. Each year begins with players knowing the type of disaster for the upcoming fourth quarter. After the disaster period ends, temperatures return to normal before the cycle repeats.
+**Mod Name:** Yayo's Planet (Continued)  
+**Author:** YAYO, Horsefry  
+**PackageId:** Mlie.YayosPlanet  
+**Parser:** tree-sitter / ok  
+**Counts:** 12 C# files, 8 XML files, 12 types, 68 members, 4 XML defs  
+**Dependencies:** brrainz.harmony, UnlimitedHugs.HugsLib
 
-## Key Features and Systems
+**Description:**
+Yayo's Planet (Continued) is an update of the original YAYO mod, Horsefry's mod. It introduces seasonal catastrophes every fourth quarter, such as Ice Age, Inferno, and Sandstorm, to enhance the survival challenge of RimWorld. The mod allows players to prepare for these disasters and adjust the temperature in the game's options.
 
-- **Disasters**: Introduces three primary disasters:
-  - *Ice Age*: Brings very cold temperatures.
-  - *Inferno*: Leads to scorching hot temperatures.
-  - *Sandstorm*: Involves numerous tornadoes. These tornadoes cannot penetrate walls or damage items indoors.
+**Key Features and Systems:**
 
-- **Temperature Control**: Offers adjustable temperature settings in the options menu for each disaster type.
-
-- **Mod Recommendations**:
-  - **Dubs Bad Hygiene**: Adds items for enhanced temperature control.
-  - **Yayo's Nature**: Alters biome conditions every 60 days for more environmental variety.
+- **Seasonal Catastrophes:** Players experience Ice Age (very cold), Inferno (very hot), and Sandstorm (with tornadoes) every fourth quarter of the game year.
+- **Temperature Control:** Players can adjust the temperature in the game's options and use various items to manage temperature.
+- **Mod Integration:** The mod is designed to work with other mods like Dubs Bad Hygiene for temperature-related items and Yayo's Nature for changing biomes.
 
 ## Coding Patterns and Conventions
 
-- The mod is developed primarily using C#, following the .NET Framework 4.8.
-- **Class Naming**: Each class corresponds to specific mod functionalities and follows a consistent naming pattern (e.g., `GameCondition_yyCold`).
-- **Method Structure**: Typically private helper methods perform complex functionality within the main class methods.
+- **C# Files:**
+  - **Core.cs:** Contains the main logic for the mod, including map component ticks.
+  - **WeatherOverlay_fastWind.cs:** Handles weather overlays for fast wind effects.
+  - **YayoPlanetMod.cs:** Contains the main mod class with settings management and initialization.
+  - **YayoPlanetSettings.cs:** Manages the mod's settings and data exposure.
+  - **yyTornado.cs:** Defines the tornado entity with various behaviors and properties.
+
+- **XML Files:**
+  - **GameCondition_yayoPlanet.xml:** Defines the game conditions for the seasonal catastrophes.
+  - **tornado.xml:** Defines the tornado entity with its properties and behavior.
+  - **UpdateInfo.xml:** Contains update information for the mod.
+  - **About.xml:** Provides information about the mod and its dependencies.
+
+- **Coding Standards:**
+  - Use PascalCase for class and method names.
+  - Use camelCase for variable names.
+  - Follow the RimWorld coding standards and conventions.
 
 ## XML Integration
 
-XML integration is often required for defining in-game elements such as:
-- Events and events' descriptions.
-- Configuration settings that can be adjusted by the player.
+- **GameConditionDefs:** Define game conditions for the seasonal catastrophes.
+  xml
+  <GameConditionDef>
+    <defName>yayoPlanet_IceAge</defName>
+    <label>Ice Age</label>
+    <description>A very cold period.</description>
+    <weather>
+      <weatherDef>Weather_Snowy</weatherDef>
+    </weather>
+  </GameConditionDef>
+  
 
-XML allows easy modification and extension of game content without needing deep programming knowledge.
+- **ThingDefs:** Define new things, such as tornadoes.
+  xml
+  <ThingDef>
+    <defName>Tornado</defName>
+    <label>Tornado</label>
+    <description>A destructive tornado.</description>
+    <category>Weather</category>
+    <thingClass>ThingWithComps</thingClass>
+    <comps>
+      <li Class="CompProperties_Damage">
+        <damageDef>DamageDef_Tornado</damageDef>
+        <amount>10</amount>
+      </li>
+    </comps>
+  </ThingDef>
+  
+
+- **UpdateInfo:** Define update information for the mod.
+  xml
+  <TabulaRasa.UpdateDef>
+    <modName>Yayo's Planet (Continued)</modName>
+    <version>1.7.0</version>
+    <notes>
+      <li>Added new disaster types.</li>
+      <li>Improved temperature control.</li>
+    </notes>
+  </TabulaRasa.UpdateDef>
+  
 
 ## Harmony Patching
 
-Harmony is leveraged to patch existing game methods and inject custom logic where needed. This ensures that the mod interacts seamlessly with the core game mechanics and potentially other mods, allowing:
-- Modifications of existing game conditions to introduce or modify disaster behavior.
-- Interaction with the game's storyteller and other systems.
+Yayo's Planet (Continued) uses Harmony for patching existing RimWorld code to implement its features. Here are some examples of Harmony patches:
+
+- **Patch for MapComponentTick:**
+  csharp
+  [HarmonyPatch(typeof(MapComponent), nameof(MapComponent.MapComponentTick))]
+  public static class MapComponentTickPatch
+  {
+      public static void Postfix(MapComponent __instance)
+      {
+          if (__instance.Map.GameConditionManager.ConditionIsActive(GameConditionDefOf.IceAge))
+          {
+              // Custom logic for Ice Age
+          }
+      }
+  }
+  
+
+- **Patch for WeatherOverlay_fastWind:**
+  csharp
+  [HarmonyPatch(typeof(WeatherOverlay_fastWind), nameof(WeatherOverlay_fastWind.Draw))]
+  public static class WeatherOverlay_fastWindPatch
+  {
+      public static void Postfix(WeatherOverlay_fastWind __instance)
+      {
+          if (__instance.Map.GameConditionManager.ConditionIsActive(GameConditionDefOf.Inferno))
+          {
+              // Custom logic for Inferno weather
+          }
+      }
+  }
+  
 
 ## Suggestions for Copilot
 
-1. **Harmony Patching**:
-   - Suggest patches for parts of the game's API that handle weather or map conditions to efficiently inject new disaster behaviors.
+1. **Explore Existing Patches:** Use existing Harmony patches in the mod to understand how to patch RimWorld code.
+2. **Modify XML Defs:** Experiment with modifying existing XML defs to add new features or tweak existing ones.
+3. **Implement New Features:** Suggest new features for the mod, such as additional disaster types or improved temperature control systems.
+4. **Fix Bugs:** Identify and fix any bugs or issues in the mod's code.
+5. **Optimize Performance:** Optimize the mod's performance by refining code and reducing unnecessary computations.
 
-2. **Event Scheduling**:
-   - Recommend methods to schedule events dynamically based on the game's in-game time loops and seasons.
+## Contributing
 
-3. **Error Handling**:
-   - Provide suggestions for logging and debugging techniques to handle and trace errors effectively, given the integration complexities.
+- **Source Code:** The source code is included with the mod.
+- **Discord Support:** Join the RimWorld Discord for support and collaboration.
+- **Error Reporting:** Use the Log Uploader to share logs when reporting errors.
+- **Mod Sorting:** Use RimSort to sort mods for better performance.
 
-4. **Performance Optimization**:
-   - Offer tips on optimizing methods that might involve intensive computations, such as those managing the tornado's path or temperature simulations.
+Feel free to modify and enhance Yayo's Planet (Continued) with your own ideas. If you have any questions or suggestions, please contact the author on the RimWorld Discord.
 
-5. **User Configuration**:
-   - Propose methods for managing user settings, potentially through XML definition files or advanced settings management in C# to enhance user configurability and experiences.
+## Project Solution Guidelines
+- Relevant mod XML files are included as Solution Items under the solution folder named XML, these can be read and modified from within the solution.
+- Use these in-solution XML files as the primary files for reference and modification.
+- The `.github/copilot-instructions.md` file is included in the solution under the `.github` solution folder, so it should be read/modified from within the solution instead of using paths outside the solution. Update this file once only, as it and the parent-path solution reference point to the same file in this workspace.
+- When making functional changes in this mod, ensure the documented features stay in sync with implementation; use the in-solution `.github` copy as the primary file.
+- In the solution is also a project called Assembly-CSharp, containing a read-only version of the decompiled game source, for reference and debugging purposes.
+- For any new documentation, update this copilot-instructions.md file rather than creating separate documentation files.
 
-By using the guidelines provided in this document, you can effectively utilize Copilot to assist you in working with the Yayo's Planet (Continued) mod codebase. This includes introducing further features, optimizing existing code, or adapting the mod to new use cases.
+
+## Hard rules (must follow)
+- Do NOT run commands that modify the repo (no git commit, git apply, dotnet format) unless explicitly asked.
+- Prefer minimal reads: read only the smallest code region needed (around the suspicious lines).
+- When mentioning SonarQube issues, automatically use the SonarQube MCP service to fetch and address issues instead of making inferred fixes without querying SonarQube first.
+- When mentioning the rimworld log, automatically use the Rimworld MCP service to fetch the log.
+

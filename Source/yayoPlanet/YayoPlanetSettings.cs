@@ -24,7 +24,7 @@ public class YayoPlanetSettings : ModSettings
         Scribe_Values.Look(ref eventStart, "eventStart", 1);
         Scribe_Values.Look(ref eventCycle, "eventCycle", 2);
 
-        Scribe_Values.Look(ref bl_randomType, "bl_randomType", false);
+        Scribe_Values.Look(ref bl_randomType, "bl_randomType");
 
         Scribe_Values.Look(ref bl_yyCold, "bl_yyCold", true);
         Scribe_Values.Look(ref val_yyCold, "val_yyCold", -270f);

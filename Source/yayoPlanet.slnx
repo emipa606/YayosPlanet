@@ -6,4 +6,19 @@
     <BuildType Name="Release" />
   </Configurations>
   <Project Path="yayoPlanet/yayoPlanet.csproj" />
+  <Folder Name="/XML/1.7/Defs/">
+    <File Path="../1.7/Defs/UpdateInfo.xml" />
+  </Folder>
+  <Folder Name="/XML/Languages/English/Keyed/">
+    <File Path="../Languages/English/Keyed/Keys.xml" />
+  </Folder>
+  <Folder Name="/XML/About/">
+    <File Path="../About/about.xml" />
+  </Folder>
+  <Folder Name="/XML/1.7/Defs/ThingDefs/">
+    <File Path="../1.7/Defs/ThingDefs/tornado.xml" />
+  </Folder>
+  <Folder Name="/XML/1.7/Defs/GameConditionDefs/">
+    <File Path="../1.7/Defs/GameConditionDefs/GameCondition_yayoPlanet.xml" />
+  </Folder>
 </Solution>

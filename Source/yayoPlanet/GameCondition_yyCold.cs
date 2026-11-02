@@ -7,7 +7,6 @@ namespace yayoPlanet;
 
 public class GameCondition_yyCold : GameCondition
 {
-
     private static int ActiveTick => (Find.TickManager.TicksAbs % GenDate.TicksPerYear) - (GenDate.TicksPerQuadrum * 3);
 
     private static float ActiveFactor => Mathf.Clamp(Mathf.Max(ActiveTick, 0) / (float)GenDate.TicksPerQuadrum, 0f, 1f);
@@ -30,21 +29,25 @@ public class GameCondition_yyCold : GameCondition
         }
     }
 
+    public override int TransitionTicks => 6000;
+
 
     public override float AnimalDensityFactor(Map map)
-    { return Mathf.Clamp01(1f - (Mathf.Abs(map.mapTemperature.OutdoorTemp) / 75f)); }
+    {
+        return Mathf.Clamp01(1f - (Mathf.Abs(map.mapTemperature.OutdoorTemp) / 75f));
+    }
 
 
     // 셀 데미지
-    public override void DoCellSteadyEffects(IntVec3 cell, Map map)
+    public override void DoCellSteadyEffects(IntVec3 c, Map map)
     {
-        var temp = cell.GetTemperature(map);
-        if (cell.GetRoof(map) != null || !(temp < -130f))
+        var temp = c.GetTemperature(map);
+        if (c.GetRoof(map) != null || !(temp < -130f))
         {
             return;
         }
 
-        var ar_thing = cell.GetThingList(map);
+        var ar_thing = c.GetThingList(map);
         // ReSharper disable once ForCanBeConvertedToForeach
         for (var i = 0; i < ar_thing.Count; i++)
         {
@@ -55,25 +58,22 @@ public class GameCondition_yyCold : GameCondition
                     thing.TakeDamage(new DamageInfo(DamageDefOf.Rotting, ActiveFactor * 2.5f));
                     break;
                 case ThingCategory.Pawn:
-                    if (thing is Pawn p)
+                    if (thing is Pawn p && Rand.Value < Mathf.Clamp01(-(temp - p.SafeTemperatureRange().min) / 100f))
                     {
-                        if (Rand.Value < Mathf.Clamp01(-(temp - p.SafeTemperatureRange().min) / 100f))
+                        var dmg = 0f;
+                        if (p.def.race.FleshType == FleshTypeDefOf.Normal ||
+                            p.def.race.FleshType == FleshTypeDefOf.Insectoid)
                         {
-                            var dmg = 0f;
-                            if (p.def.race.FleshType == FleshTypeDefOf.Normal ||
-                                p.def.race.FleshType == FleshTypeDefOf.Insectoid)
-                            {
-                                dmg = 15f;
-                            }
-                            else if (p.def.race.FleshType == FleshTypeDefOf.Mechanoid)
-                            {
-                                dmg = 1f;
-                            }
+                            dmg = 15f;
+                        }
+                        else if (p.def.race.FleshType == FleshTypeDefOf.Mechanoid)
+                        {
+                            dmg = 1f;
+                        }
 
-                            if (Rand.Value < 0.25f)
-                            {
-                                thing.TakeDamage(new DamageInfo(DamageDefOf.Frostbite, dmg));
-                            }
+                        if (Rand.Value < 0.25f)
+                        {
+                            thing.TakeDamage(new DamageInfo(DamageDefOf.Frostbite, dmg));
                         }
                     }
 
@@ -124,7 +124,10 @@ public class GameCondition_yyCold : GameCondition
         Messages.Message("nt_cold".Translate(), MessageTypeDefOf.NeutralEvent);
     }
 
-    public override List<SkyOverlay> SkyOverlays(Map map) { return Overlays; }
+    public override List<SkyOverlay> SkyOverlays(Map map)
+    {
+        return Overlays;
+    }
 
     // 하늘 색깔
     public override SkyTarget? SkyTarget(Map map)
@@ -141,14 +144,14 @@ public class GameCondition_yyCold : GameCondition
     }
 
     // 하늘 색깔
-    public override float SkyTargetLerpFactor(Map map) { return ActiveFactor; }
+    public override float SkyTargetLerpFactor(Map map)
+    {
+        return ActiveFactor;
+    }
 
     // 오프셋 기온
     public override float TemperatureOffset()
     {
-        //Log.Message(active_factor.ToString());
         return ActiveFactor * YayoPlanetMod.val_yyCold;
     }
-
-    public override int TransitionTicks => 6000;
 }

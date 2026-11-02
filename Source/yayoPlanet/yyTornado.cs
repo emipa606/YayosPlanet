@@ -69,6 +69,8 @@ public class yyTornado : ThingWithComps
         MapMaterialRenderQueues.Tornado);
 
     private static readonly float ZOffsetBias = -4f * PartsDistanceFromCenter.min;
+
+    private readonly List<IntVec3> removedRoofsTmp = [];
     private int _hp = 999;
     private int destroyHp = 99999;
 
@@ -78,13 +80,41 @@ public class yyTornado : ThingWithComps
 
     private Vector2 realPosition;
 
-    private readonly List<IntVec3> removedRoofsTmp = [];
-
     private int spawnTick;
 
     private Sustainer sustainer;
 
     private int ticksLeftToDisappear = -1;
+
+    private int Hp
+    {
+        get => _hp;
+        set
+        {
+            if (value > MaxHp)
+            {
+                _hp = MaxHp;
+            }
+            else if (value < 0)
+            {
+                _hp = 0;
+            }
+            else
+            {
+                _hp = value;
+            }
+        }
+    }
+
+    private float FadeInOutFactor
+    {
+        get
+        {
+            var a = Mathf.Clamp01((Find.TickManager.TicksGame - spawnTick) / 120f);
+            var b = leftFadeOutTicks < 0 ? 1f : Mathf.Min(leftFadeOutTicks / 120f, 1f);
+            return Mathf.Min(a, b);
+        }
+    }
 
     private static float adjustedDistanceFromCenter(float distanceFromCenter)
     {
@@ -95,22 +125,22 @@ public class yyTornado : ThingWithComps
 
     private bool cellImmuneToDamage(IntVec3 c)
     {
-        if(c.Roofed(Map) && c.GetRoof(Map).isThickRoof)
+        if (c.Roofed(Map) && c.GetRoof(Map).isThickRoof)
         {
             return true;
         }
 
         var edifice = c.GetEdifice(Map);
         return edifice != null &&
-            edifice.def.category == ThingCategory.Building &&
-            (edifice.def.building.isNaturalRock || edifice.def == ThingDefOf.Wall && edifice.Faction == null);
+               edifice.def.category == ThingCategory.Building &&
+               (edifice.def.building.isNaturalRock || edifice.def == ThingDefOf.Wall && edifice.Faction == null);
     }
 
     private void changeDirection(int dmg)
     {
         // 체력감소에 따라 방향전환
         Hp -= dmg;
-        if(Hp > 0)
+        if (Hp > 0)
         {
             return;
         }
@@ -134,17 +164,17 @@ public class yyTornado : ThingWithComps
     {
         const float maxDist = 9f;
         var num = GenRadial.NumCellsInRadius(maxDist); // 공격범위
-        for(var i = 0; i < num; i++)
+        for (var i = 0; i < num; i++)
         {
             var intVec = Position + GenRadial.RadialPattern[i];
 
-            if(!intVec.InBounds(Map) || cellImmuneToDamage(intVec))
+            if (!intVec.InBounds(Map) || cellImmuneToDamage(intVec))
             {
                 continue;
             }
 
             var firstPawn = intVec.GetFirstPawn(Map);
-            if(firstPawn is { Downed: true } && Rand.Bool)
+            if (firstPawn is { Downed: true } && Rand.Bool)
             {
                 continue;
             }
@@ -152,7 +182,7 @@ public class yyTornado : ThingWithComps
             var checkCell = intVec.RandomAdjacentCell8Way();
 
             var room = checkCell.GetRoomOrAdjacent(Map, RegionType.Set_All);
-            if(!checkCell.Walkable(Map) || room is { PsychologicallyOutdoors: false })
+            if (!checkCell.Walkable(Map) || room is { PsychologicallyOutdoors: false })
             {
                 continue;
             }
@@ -166,9 +196,10 @@ public class yyTornado : ThingWithComps
 
     private void damageFarThings()
     {
-        var c = (from x in GenRadial.RadialCellsAround(Position, FarDamageRadius, true) where x.InBounds(Map) select x).RandomElement(
+        var c = (from x in GenRadial.RadialCellsAround(Position, FarDamageRadius, true) where x.InBounds(Map) select x)
+            .RandomElement(
             );
-        if(cellImmuneToDamage(c))
+        if (cellImmuneToDamage(c))
         {
             return;
         }
@@ -188,31 +219,31 @@ public class yyTornado : ThingWithComps
         var b = new Vector2(vector.x, vector.z);
         var angle = -realPosition.AngleTo(b) + 180f;
         // ReSharper disable once ForCanBeConvertedToForeach
-        for(var i = 0; i < tmpThings.Count; i++)
+        for (var i = 0; i < tmpThings.Count; i++)
         {
             var thing = tmpThings[i];
 
 
             BattleLogEntry_DamageTaken battleLogEntry_DamageTaken = null;
-            switch(thing.def.category)
+            switch (thing.def.category)
             {
                 case ThingCategory.Pawn:
                 {
                     var pawn = (Pawn)tmpThings[i];
                     battleLogEntry_DamageTaken =
-                            new BattleLogEntry_DamageTaken(pawn, RulePackDefOf.DamageEvent_Tornado);
+                        new BattleLogEntry_DamageTaken(pawn, RulePackDefOf.DamageEvent_Tornado);
                     Find.BattleLog.Add(battleLogEntry_DamageTaken);
-                    if(pawn.RaceProps.baseHealthScale < 1f)
+                    if (pawn.RaceProps.baseHealthScale < 1f)
                     {
                         damageFactor *= pawn.RaceProps.baseHealthScale * ThreeDimensionalEffectStrength;
                     }
 
-                    if(pawn.RaceProps.Animal)
+                    if (pawn.RaceProps.Animal)
                     {
                         damageFactor *= 3f;
                     }
 
-                    if(pawn.Downed)
+                    if (pawn.Downed)
                     {
                         damageFactor *= BuildingDamageFactor;
                     }
@@ -225,7 +256,7 @@ public class yyTornado : ThingWithComps
                 case ThingCategory.Building:
                     damageFactor *= 0.1f;
                     destroyHp--;
-                    if(destroyHp <= 0)
+                    if (destroyHp <= 0)
                     {
                         leftFadeOutTicks = FadeOutTicks;
                     }
@@ -237,22 +268,23 @@ public class yyTornado : ThingWithComps
             }
 
             var num = Mathf.Max(GenMath.RoundRandom(BaseDamage * damageFactor), 0);
-            if(thing.def.category == ThingCategory.Building)
+            if (thing.def.category == ThingCategory.Building)
             {
                 num = GenMath.RoundRandom(
                     Mathf.Max(num, thing.def.BaseMaxHitPoints * 0.02f * YayoPlanetMod.val_yyTornado)); // 체력에 따른 퍼뎀
             }
 
-            if(num <= 0)
+            if (num <= 0)
             {
                 continue;
             }
 
-            if(Rand.Bool)
+            if (Rand.Bool)
             {
                 tmpThings[i].TakeDamage(new DamageInfo(DamageDefOf.Blunt, num, 0f, angle, this))
                     .AssociateWithLog(battleLogEntry_DamageTaken);
-            } else
+            }
+            else
             {
                 tmpThings[i].TakeDamage(new DamageInfo(DamageDefOf.Scratch, num, 0f, angle, this))
                     .AssociateWithLog(battleLogEntry_DamageTaken);
@@ -277,7 +309,7 @@ public class yyTornado : ThingWithComps
             vector.y);
         var num4 = (distanceFromCenter * 1f) + 18f; // 크기
         var num5 = 1f;
-        switch(num3)
+        switch (num3)
         {
             case > 270f:
                 num5 = GenMath.LerpDouble(270f, 360f, 0f, 1f, num3);
@@ -303,34 +335,6 @@ public class yyTornado : ThingWithComps
         sustainer.info.volumeFactor = FadeInOutFactor * 0.4f; // 토네이도 볼륨
     }
 
-    private int Hp
-    {
-        get => _hp;
-        set
-        {
-            if(value > MaxHp)
-            {
-                _hp = MaxHp;
-            } else if(value < 0)
-            {
-                _hp = 0;
-            } else
-            {
-                _hp = value;
-            }
-        }
-    }
-
-    private float FadeInOutFactor
-    {
-        get
-        {
-            var a = Mathf.Clamp01((Find.TickManager.TicksGame - spawnTick) / 120f);
-            var b = leftFadeOutTicks < 0 ? 1f : Mathf.Min(leftFadeOutTicks / 120f, 1f);
-            return Mathf.Min(a, b);
-        }
-    }
-
     protected override void DrawAt(Vector3 drawLoc, bool flip = false)
     {
         base.DrawAt(drawLoc, flip);
@@ -338,7 +342,7 @@ public class yyTornado : ThingWithComps
         Rand.Seed = thingIDNumber;
 
         var makeNum = 30;
-        for(var i = 0; i < makeNum; i++)
+        for (var i = 0; i < makeNum; i++)
         {
             // 높이
             drawTornadoPart(PartsDistanceFromCenter.RandomInRange, Rand.Range(0f, 360f), Rand.Range(0.9f, 1.1f));
@@ -350,12 +354,12 @@ public class yyTornado : ThingWithComps
     protected override void Tick()
     {
         Hp++;
-        if(!Spawned)
+        if (!Spawned)
         {
             return;
         }
 
-        if(sustainer == null)
+        if (sustainer == null)
         {
             createSustainer();
         }
@@ -363,51 +367,55 @@ public class yyTornado : ThingWithComps
         sustainer?.Maintain();
         updateSustainerVolume();
         GetComp<CompWindSource>().wind = Wind * FadeInOutFactor;
-        if(leftFadeOutTicks > 0)
+        if (leftFadeOutTicks > 0)
         {
             leftFadeOutTicks--;
-            if(leftFadeOutTicks == 0)
+            if (leftFadeOutTicks == 0)
             {
                 Destroy();
             }
-        } else
+        }
+        else
         {
             directionNoise ??= new Perlin(0.0020000000949949026, 2.0, 0.5, 4, 1948573612, QualityMode.Medium);
 
             direction +=
-                (float)directionNoise.GetValue(Find.TickManager.TicksAbs, thingIDNumber % 500 * 1000f, 0.0) * DirectionChangeSpeed;
+                (float)directionNoise.GetValue(Find.TickManager.TicksAbs, thingIDNumber % 500 * 1000f, 0.0) *
+                DirectionChangeSpeed;
             realPosition = realPosition.Moved(direction, 0.0283333343f); // 이동속도
             var intVec = new Vector3(realPosition.x, 0f, realPosition.y).ToIntVec3();
 
-            if(!intVec.CloseToEdge(Map, 5))
+            if (!intVec.CloseToEdge(Map, 5))
             {
                 // 현재 셀이 이동불가 셀일경우 방향전환
-                if(intVec.Impassable(Map))
+                if (intVec.Impassable(Map))
                 {
                     changeDirection(CloseDamageIntervalTicks);
                 }
 
                 Position = intVec;
-                if(this.IsHashIntervalTick(120))
+                if (this.IsHashIntervalTick(120))
                 {
                     damageCloseThings();
                 }
 
-                if(Rand.MTBEventOccurs(FarDamageMTBTicks, 1f, 0.25f))
+                if (Rand.MTBEventOccurs(FarDamageMTBTicks, 1f, 0.25f))
                 {
                     damageFarThings();
                 }
 
-                if(ticksLeftToDisappear > 0)
+                if (ticksLeftToDisappear <= 0)
                 {
-                    ticksLeftToDisappear--;
-                    if(ticksLeftToDisappear == 0)
-                    {
-                        leftFadeOutTicks = FadeOutTicks;
-                    }
+                    return;
                 }
 
-            } else
+                ticksLeftToDisappear--;
+                if (ticksLeftToDisappear == 0)
+                {
+                    leftFadeOutTicks = FadeOutTicks;
+                }
+            }
+            else
             {
                 // 맵의 외각일경우 중앙으로 향하기
                 var b = Map.Center.ToVector3();
@@ -435,7 +443,7 @@ public class yyTornado : ThingWithComps
         Hp = MaxHp;
         destroyHp = MaxDestroyHp;
         base.SpawnSetup(map, respawningAfterLoad);
-        if(!respawningAfterLoad)
+        if (!respawningAfterLoad)
         {
             var vector = Position.ToVector3Shifted();
             realPosition = new Vector2(vector.x, vector.z);

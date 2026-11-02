@@ -8,30 +8,24 @@ public static class util
     public static float threatMultiply = 1f;
 
     private static GameConditionDef getRandomGcDef()
-    { return YayoPlanetMod.ar_gc[Rand.Range(0, YayoPlanetMod.ar_gc.Count)]; }
+    {
+        return YayoPlanetMod.ar_gc[Rand.Range(0, YayoPlanetMod.ar_gc.Count)];
+    }
 
     public static bool IsYayoGC(Map map)
     {
-        var result = false;
-        foreach(var gc in map.gameConditionManager.ActiveConditions)
-        {
-            if(gc.def.defName.Contains("yy"))
-            {
-                result = true;
-            }
-        }
-
-        return result;
+        return map.gameConditionManager.ActiveConditions.Any(gc => gc.def.defName.Contains("yy"));
     }
 
 
     public static void SetRandomYayoGc(Map map)
     {
         GameCondition gc;
-        if(YayoPlanetMod.bl_randomType)
+        if (YayoPlanetMod.bl_randomType)
         {
             gc = GameConditionMaker.MakeConditionPermanent(getRandomGcDef());
-        } else
+        }
+        else
         {
             gc = GameConditionMaker.MakeConditionPermanent(
                 YayoPlanetMod.ar_gc[

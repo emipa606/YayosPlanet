@@ -10,9 +10,13 @@ public class GameCondition_yyHot : GameCondition
 
     private static float ActiveFactor => Mathf.Clamp(Mathf.Max(ActiveTick, 0) / (float)GenDate.TicksPerQuadrum, 0f, 1f);
 
+    public override int TransitionTicks => 6000;
+
 
     public override float AnimalDensityFactor(Map map)
-    { return Mathf.Clamp01(1f - (Mathf.Abs(map.mapTemperature.OutdoorTemp) / 65f)); }
+    {
+        return Mathf.Clamp01(1f - (Mathf.Abs(map.mapTemperature.OutdoorTemp) / 65f));
+    }
 
     public override void End()
     {
@@ -47,10 +51,14 @@ public class GameCondition_yyHot : GameCondition
     }
 
     // 하늘 색깔
-    public override float SkyTargetLerpFactor(Map map) { return ActiveFactor; }
+    public override float SkyTargetLerpFactor(Map map)
+    {
+        return ActiveFactor;
+    }
 
     // 오프셋 기온
-    public override float TemperatureOffset() { return ActiveFactor * YayoPlanetMod.val_yyHot; }
-
-    public override int TransitionTicks => 6000;
+    public override float TemperatureOffset()
+    {
+        return ActiveFactor * YayoPlanetMod.val_yyHot;
+    }
 }
